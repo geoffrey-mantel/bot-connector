@@ -12,7 +12,7 @@ const baseUrl = 'http://localhost:8080'
 
 describe('Webhook validator', () => {
   describe('forwardMessage', () => {
-    it('should be a 400 with an invalid channel_id', async () => {
+    it('should be a 404 with an invalid channel_id', async () => {
       try {
         await chai.request(baseUrl).post('/webhook/12345').send()
         should.fail()
@@ -20,15 +20,15 @@ describe('Webhook validator', () => {
         const res = err.response
         const { message, results } = res.body
 
-        assert.equal(res.status, 400)
+        assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter channel_id is invalid')
+        assert.equal(message, 'Channel not found')
       }
     })
   })
 
   describe('subscribeWebhook', () => {
-    it('should be a 400 with an invalid channel_id', async () => {
+    it('should be a 404 with an invalid channel_id', async () => {
       try {
         await chai.request(baseUrl).get('/webhook/12345').send()
         should.fail()
@@ -36,9 +36,9 @@ describe('Webhook validator', () => {
         const res = err.response
         const { message, results } = res.body
 
-        assert.equal(res.status, 400)
+        assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter channel_id is invalid')
+        assert.equal(message, 'Channel not found')
       }
     })
   })

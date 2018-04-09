@@ -25,15 +25,16 @@ describe('Channel validator', () => {
     before(async () => connector = await new Connector({ url }))
     after(async () => await Connector.remove({}))
 
-    it ('should be a 400 with an invalid connector_id', async () => {
+    it ('should be a 404 with an invalid connector_id', async () => {
+      const payload = { type: 'slack', isActivated: true, slug: 'slug-test' }
       try {
-        await chai.request(baseUrl).post('/connectors/1234/channels').send()
+        await chai.request(baseUrl).post('/connectors/1234/channels').send(payload)
         should.fail()
       } catch (err) {
         const res = err.response
 
-        assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter connector_id is invalid')
+        assert.equal(res.status, 404)
+        assert.equal(res.body.message, 'Connector not found')
       }
     })
 
@@ -64,14 +65,14 @@ describe('Channel validator', () => {
     })
 
     it ('should be a 400 with a missing isActivated', async () => {
-      const payload = { type: 'slack', slug: 'slug-test' }
+      const payload = { type: 'slack', slug: 'slug-test', token: 'slack-token' }
       try {
         await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
         should.fail()
       } catch (err) {
         const res = err.response
 
-        assert.equal(res.status, 400)
+        assert.equal(res.status, 404)
         assert.equal(res.body.message, 'Parameter isActivated is missing')
       }
     })
@@ -92,15 +93,15 @@ describe('Channel validator', () => {
   })
 
   describe('getChannelsByConnectorId', () => {
-    it ('should be a 400 with an invalid connector_id', async () => {
+    it ('should be a 404 with an invalid connector_id', async () => {
       try {
         await chai.request(baseUrl).get('/connectors/1234/channels').send()
         should.fail()
       } catch (err) {
         const res = err.response
 
-        assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter connector_id is invalid')
+        assert.equal(res.status, 404)
+        assert.equal(res.body.message, 'Connector not found')
       }
     })
   })
@@ -110,15 +111,15 @@ describe('Channel validator', () => {
     before(async () => connector = await new Connector({ url }).save())
     after(async () => Connector.remove({}))
 
-    it ('should be a 400 with an invalid connector_id', async () => {
+    it ('should be a 404 with an invalid connector_id', async () => {
       try {
         await chai.request(baseUrl).get('/connectors/1234/channels/1234').send()
         should.fail()
       } catch (err) {
         const res = err.response
 
-        assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter connector_id is invalid')
+        assert.equal(res.status, 404)
+        assert.equal(res.body.message, 'Channel not found')
       }
     })
   })
@@ -130,17 +131,17 @@ describe('Channel validator', () => {
       connector = await new Connector({ url }).save()
       channel = await new Channel({ ...payload, connector: connector._id }).save()
     })
-    after(async () => Promise.all([Connecotr.remove({}), Channel.remove({})]))
+    after(async () => Promise.all([Connector.remove({}), Channel.remove({})]))
 
-    it ('should be a 400 with an invalid connector_id', async () => {
+    it ('should be a 404 with an invalid connector_id', async () => {
       try {
         await chai.request(baseUrl).put(`/connectors/1234/channels/${channel._slug}`).send()
         should.fail()
       } catch (err) {
         const res = err.response
 
-        assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter connector_id is invalid')
+        assert.equal(res.status, 404)
+        assert.equal(res.body.message, 'Channel not found')
       }
     })
 
@@ -159,15 +160,15 @@ describe('Channel validator', () => {
   })
 
   describe('deleteChannelConnectorById', () => {
-    it ('should be a 400 with an invalid connector_id', async () => {
+    it ('should be a 404 with an invalid connector_id', async () => {
       try {
         await chai.request(baseUrl).del(`/connectors/1234/channels/test`).send()
         should.fail()
       } catch (err) {
         const res = err.response
 
-        assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter connector_id is invalid')
+        assert.equal(res.status, 404)
+        assert.equal(res.body.message, 'Channel not found')
       }
     })
   })

@@ -15,7 +15,7 @@ const baseUrl = 'http://localhost:8080'
 
 describe('Participant validator', () => {
   describe('getParticipantsByConnectorId', () => {
-    it('should be a 400 with an invalid connector_id', async () => {
+    it('should be a 404 with an invalid connector_id', async () => {
       try {
         await chai.request(baseUrl).get('/connectors/12345/participants').send()
         should.fail()
@@ -23,9 +23,9 @@ describe('Participant validator', () => {
         const res = err.response
         const { message, results } = res.body
 
-        assert.equal(res.status, 400)
+        assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter connector_id is invalid')
+        assert.equal(message, 'Connector not found')
       }
     })
   })
@@ -35,7 +35,7 @@ describe('Participant validator', () => {
     before(async () => connector = await new Connector({ url }).save())
     after(async () => Connector.remove({}))
 
-    it('should be a 400 with an invalid connector_id', async () => {
+    it('should be a 404 with an invalid connector_id', async () => {
       try {
         await chai.request(baseUrl).get('/connectors/1234/participants/test').send()
         should.fail()
@@ -43,13 +43,13 @@ describe('Participant validator', () => {
         const res = err.response
         const { message, results } = res.body
 
-        assert.equal(res.status, 400)
+        assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter connector_id is invalid')
+        assert.equal(message, 'Participant not found')
       }
     })
 
-    it('should be a 400 with an invalid participant_id', async () => {
+    it('should be a 404 with an invalid participant_id', async () => {
       try {
         await chai.request(baseUrl).get(`/connectors/${connector._id}/participants/test`).send()
         should.fail()
@@ -57,9 +57,9 @@ describe('Participant validator', () => {
         const res = err.response
         const { message, results } = res.body
 
-        assert.equal(res.status, 400)
+        assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter participant_id is invalid')
+        assert.equal(message, 'Participant not found')
       }
     })
   })
