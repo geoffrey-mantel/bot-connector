@@ -1,7 +1,7 @@
 import chai from 'chai'
 import chaiHttp from 'chai-http'
 
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Channel from '../../src/models/Channel.model'
 import Conversation from '../../src/models/Conversation.model'
 
@@ -10,18 +10,18 @@ const expect = chai.expect
 
 chai.use(chaiHttp)
 
-let bot = null
+let connector = null
 let channel = null
 let payload = null
 
 describe('Conversation Model', () => {
   before(async () => {
-    bot = await new Bot({ url: 'https://bonjour.com' }).save()
-    channel = await new Channel({ bot: bot._id, type: 'kik', slug: 'kik', isActivated: true }).save()
+    connector = await new Connector({ url: 'https://bonjour.com' }).save()
+    channel = await new Channel({ connector: connector._id, type: 'kik', slug: 'kik', isActivated: true }).save()
 
     payload = {
       channel: channel._id,
-      bot: bot._id,
+      connector: connector._id,
       isActive: true,
       chatId: 'testChatId',
     }
@@ -29,7 +29,7 @@ describe('Conversation Model', () => {
 
   after(async () => {
     await Promise.all([
-      Bot.remove({}),
+      Connector.remove({}),
       Channel.remove({}),
       Conversation.remove({}),
     ])
@@ -41,7 +41,7 @@ describe('Conversation Model', () => {
     it('can create conversation when no one created', async () => {
       const conversation = await new Conversation(payload)
 
-      assert.equal(conversation.bot, payload.bot)
+      assert.equal(conversation.connector, payload.connector)
       assert.equal(conversation.channel, payload.channel)
       assert.equal(conversation.chatId, payload.chatId)
       assert.equal(conversation.isActive, payload.isActive)
@@ -76,7 +76,7 @@ describe('Conversation Model', () => {
       const conversation = await new Conversation(payload).save()
       const updatedConversation = await Conversation.findOneAndUpdate({ _id: conversation._id }, { $set: newPayload }, { new: true })
 
-      assert.equal(conversation.bot.toString(), updatedConversation.bot.toString())
+      assert.equal(conversation.connector.toString(), updatedConversation.connector.toString())
       assert.equal(conversation.chatId, updatedConversation.chatId)
       assert.equal(updatedConversation.isActive, false)
     })

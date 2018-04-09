@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import chai from 'chai'
 import chaiHttp from 'chai-http'
 
-import Bot from '../../src/models/Bot.model.js'
+import Connector from '../../src/models/Connector.model.js'
 import Channel from '../../src/models/Channel.model.js'
 import Conversation from '../../src/models/Conversation.model.js'
 import Participant from '../../src/models/Participant.model.js'
@@ -11,7 +11,7 @@ chai.use(chaiHttp)
 
 const expect = chai.expect
 
-let bot = null
+let connector = null
 let channel = null
 let conversation1 = null
 let conversation2 = null
@@ -29,32 +29,32 @@ function clearDB () {
 }
 
 describe('Participant controller', () => {
-  describe('should list bot participants', () => {
+  describe('should list connector participants', () => {
     describe('with no participant', () => {
       before(done => {
-        bot = new Bot()
+        connector = new Connector()
         channel = new Channel()
         conversation1 = new Conversation()
 
-        bot.url = 'http://fallback.fr'
+        connector.url = 'http://fallback.fr'
 
-        channel.bot = bot._id
+        channel.connector = connector._id
         channel.slug = 'kik-1'
         channel.type = 'kik'
         channel.isActivated = true
 
-        bot.channels.push(channel._id)
+        connector.channels.push(channel._id)
 
         conversation1.channel = channel._id
-        conversation1.bot = bot._id
+        conversation1.connector = connector._id
         conversation1.isActive = true
         conversation1.chatId = 'myChatId'
 
-        bot.conversations.push(conversation1._id)
+        connector.conversations.push(conversation1._id)
 
         conversation1.save(() => {
           channel.save(() => {
-            bot.save(() => {
+            connector.save(() => {
               done()
             })
           })
@@ -62,29 +62,29 @@ describe('Participant controller', () => {
       })
 
       after(done => {
-        bot = null
+        boconnectort = null
         channel = null
         conversation1 = null
         clearDB()
         done()
       })
 
-      it('should be a 400 with a not valid bot_id', done => {
+      it('should be a 400 with a not valid connector_id', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/1/participants`)
+        .get(`/connectors/1/participants`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
           chai.expect(res.status).to.equal(400)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter bot_id is invalid')
+          chai.expect(res.body.message).to.equal('Parameter connector_id is invalid')
           done()
         })
       })
 
       it('should be a 200', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants`)
+        .get(`/connectors/${connector._id}/participants`)
         .send()
         .end((err, res) => {
           chai.should(err).not.exist
@@ -99,7 +99,7 @@ describe('Participant controller', () => {
 
     describe('with many conversations and many participants', () => {
       before(done => {
-        bot = new Bot()
+        connector = new Connector()
         channel = new Channel()
         conversation1 = new Conversation()
         conversation2 = new Conversation()
@@ -108,43 +108,43 @@ describe('Participant controller', () => {
         participant3 = new Participant()
         participant4 = new Participant()
 
-        bot.url = 'http://fallback.fr'
+        connector.url = 'http://fallback.fr'
 
-        channel.bot = bot._id
+        channel.connector = connector._id
         channel.slug = 'kik-1'
         channel.type = 'kik'
         channel.isActivated = true
 
-        bot.channels.push(channel._id)
+        connector.channels.push(channel._id)
 
         conversation1.channel = channel._id
-        conversation1.bot = bot._id
+        conversation1.connector = connector._id
         conversation1.isActive = true
         conversation1.chatId = 'myChatId'
 
-        bot.conversations.push(conversation1._id)
+        connector.conversations.push(conversation1._id)
 
         conversation2.channel = channel._id
-        conversation2.bot = bot._id
+        conversation2.connector = connector._id
         conversation2.isActive = true
         conversation2.chatId = 'myChatId2'
 
-        bot.conversations.push(conversation2._id)
+        connector.conversations.push(conversation2._id)
 
-        participant1.isBot = true
+        participant1.isConnector = true
 
         conversation1.participants.push(participant1._id)
 
-        participant2.isBot = false
+        participant2.isConnector = false
 
 
         conversation1.participants.push(participant2._id)
 
-        participant3.isBot = true
+        participant3.isConnector = true
 
         conversation2.participants.push(participant3._id)
 
-        participant4.isBot = false
+        participant4.isConnector = false
 
 
         conversation2.participants.push(participant4._id)
@@ -156,7 +156,7 @@ describe('Participant controller', () => {
                 conversation1.save(() => {
                   conversation2.save(() => {
                     channel.save(() => {
-                      bot.save(() => {
+                      connector.save(() => {
                         done()
                       })
                     })
@@ -169,7 +169,7 @@ describe('Participant controller', () => {
       })
 
       after(done => {
-        bot = null
+        connector = null
         channel = null
         conversation1 = null
         conversation2 = null
@@ -181,22 +181,22 @@ describe('Participant controller', () => {
         done()
       })
 
-      it('should be a 400 with a not valid bot_id', done => {
+      it('should be a 400 with a not valid connector_id', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/1/participants`)
+        .get(`/connectors/1/participants`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
           chai.expect(res.status).to.equal(400)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter bot_id is invalid')
+          chai.expect(res.body.message).to.equal('Parameter connector_id is invalid')
           done()
         })
       })
 
       it('should be a 200', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants`)
+        .get(`/connectors/${connector._id}/participants`)
         .send()
         .end((err, res) => {
           chai.should(err).not.exist
@@ -205,16 +205,16 @@ describe('Participant controller', () => {
           chai.expect(res.body.results.length).to.equal(4)
           chai.expect(res.body.results[0]).to.be.an('object')
           chai.expect(res.body.results[0].id.toString()).to.equal(participant1._id.toString())
-          chai.expect(res.body.results[0].isBot).to.equal(participant1.isBot)
+          chai.expect(res.body.results[0].isConnector).to.equal(participant1.isConnector)
           chai.expect(res.body.results[1]).to.be.an('object')
           chai.expect(res.body.results[1].id.toString()).to.equal(participant2._id.toString())
-          chai.expect(res.body.results[1].isBot).to.equal(participant2.isBot)
+          chai.expect(res.body.results[1].isConnector).to.equal(participant2.isConnector)
           chai.expect(res.body.results[2]).to.be.an('object')
           chai.expect(res.body.results[2].id.toString()).to.equal(participant3._id.toString())
-          chai.expect(res.body.results[2].isBot).to.equal(participant3.isBot)
+          chai.expect(res.body.results[2].isConnector).to.equal(participant3.isConnector)
           chai.expect(res.body.results[3]).to.be.an('object')
           chai.expect(res.body.results[3].id.toString()).to.equal(participant4._id.toString())
-          chai.expect(res.body.results[3].isBot).to.equal(participant4.isBot)
+          chai.expect(res.body.results[3].isConnector).to.equal(participant4.isConnector)
           chai.expect(res.body.message).to.equal('Participants successfully rendered')
           done()
         })
@@ -222,32 +222,32 @@ describe('Participant controller', () => {
     })
   })
 
-  describe('should index bot participants', () => {
+  describe('should index connector participants', () => {
     describe('with no participant', () => {
       before(done => {
-        bot = new Bot()
+        connector = new Connector()
         channel = new Channel()
         conversation1 = new Conversation()
 
-        bot.url = 'http://fallback.fr'
+        connector.url = 'http://fallback.fr'
 
-        channel.bot = bot._id
+        channel.connector = connector._id
         channel.slug = 'kik-1'
         channel.type = 'kik'
         channel.isActivated = true
 
-        bot.channels.push(channel._id)
+        connector.channels.push(channel._id)
 
         conversation1.channel = channel._id
-        conversation1.bot = bot._id
+        conversation1.connector = connector._id
         conversation1.isActive = true
         conversation1.chatId = 'myChatId'
 
-        bot.conversations.push(conversation1._id)
+        connector.conversations.push(conversation1._id)
 
         conversation1.save(() => {
           channel.save(() => {
-            bot.save(() => {
+            connector.save(() => {
               done()
             })
           })
@@ -255,29 +255,29 @@ describe('Participant controller', () => {
       })
 
       after(done => {
-        bot = null
+        connector = null
         channel = null
         conversation1 = null
         clearDB()
         done()
       })
 
-      it('should be a 400 with a not valid bot_id', done => {
+      it('should be a 400 with a not valid connector_id', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/1/participants/1`)
+        .get(`/connectors/1/participants/1`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
           chai.expect(res.status).to.equal(400)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter bot_id is invalid')
+          chai.expect(res.body.message).to.equal('Parameter connector_id is invalid')
           done()
         })
       })
 
       it('should be a 400 with a not valid participant_id', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/1`)
+        .get(`/connectors/${connector._id}/participants/1`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
@@ -290,7 +290,7 @@ describe('Participant controller', () => {
 
       it('should be a 404 with a not valid participant_id', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/507f1f77bcf86cd799439011`)
+        .get(`/connectors/${connector._id}/participants/507f1f77bcf86cd799439011`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
@@ -304,7 +304,7 @@ describe('Participant controller', () => {
 
     describe('with many conversations and many participants', () => {
       before(done => {
-        bot = new Bot()
+        connector = new Connector()
         channel = new Channel()
         conversation1 = new Conversation()
         conversation2 = new Conversation()
@@ -313,43 +313,43 @@ describe('Participant controller', () => {
         participant3 = new Participant()
         participant4 = new Participant()
 
-        bot.url = 'http://fallback.fr'
+        connector.url = 'http://fallback.fr'
 
-        channel.bot = bot._id
+        channel.connector = connector._id
         channel.slug = 'kik-1'
         channel.type = 'kik'
         channel.isActivated = true
 
-        bot.channels.push(channel._id)
+        connector.channels.push(channel._id)
 
         conversation1.channel = channel._id
-        conversation1.bot = bot._id
+        conversation1.connector = connector._id
         conversation1.isActive = true
         conversation1.chatId = 'myChatId'
 
-        bot.conversations.push(conversation1._id)
+        connector.conversations.push(conversation1._id)
 
         conversation2.channel = channel._id
-        conversation2.bot = bot._id
+        conversation2.connector = connector._id
         conversation2.isActive = true
         conversation2.chatId = 'myChatId2'
 
-        bot.conversations.push(conversation2._id)
+        connector.conversations.push(conversation2._id)
 
-        participant1.isBot = true
+        participant1.isConnector = true
 
         conversation1.participants.push(participant1._id)
 
-        participant2.isBot = false
+        participant2.isConnector = false
 
 
         conversation1.participants.push(participant2._id)
 
-        participant3.isBot = true
+        participant3.isConnector = true
 
         conversation2.participants.push(participant3._id)
 
-        participant4.isBot = false
+        participant4.isConnector = false
 
 
         conversation2.participants.push(participant4._id)
@@ -361,7 +361,7 @@ describe('Participant controller', () => {
                 conversation1.save(() => {
                   conversation2.save(() => {
                     channel.save(() => {
-                      bot.save(() => {
+                      connector.save(() => {
                         done()
                       })
                     })
@@ -374,7 +374,7 @@ describe('Participant controller', () => {
       })
 
       after(done => {
-        bot = null
+        connector = null
         channel = null
         conversation1 = null
         conversation2 = null
@@ -388,7 +388,7 @@ describe('Participant controller', () => {
 
       it('should be a 404 with a not found participant_id', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/507f191e810c19729de860ea`)
+        .get(`/connectors/${connector._id}/participants/507f191e810c19729de860ea`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
@@ -401,14 +401,14 @@ describe('Participant controller', () => {
 
       it('should be a 200', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/${participant1._id}`)
+        .get(`/connectors/${connector._id}/participants/${participant1._id}`)
         .send()
         .end((err, res) => {
           chai.should(err).not.exist
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant1._id.toString())
-          chai.expect(res.body.results.isBot).to.equal(participant1.isBot)
+          chai.expect(res.body.results.isConnector).to.equal(participant1.isConnector)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
@@ -416,14 +416,14 @@ describe('Participant controller', () => {
 
       it('should be a 200', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/${participant2._id}`)
+        .get(`/connectors/${connector._id}/participants/${participant2._id}`)
         .send()
         .end((err, res) => {
           chai.should(err).not.exist
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant2._id.toString())
-          chai.expect(res.body.results.isBot).to.equal(participant2.isBot)
+          chai.expect(res.body.results.isConnector).to.equal(participant2.isConnector)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
@@ -431,14 +431,14 @@ describe('Participant controller', () => {
 
       it('should be a 200', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/${participant3._id}`)
+        .get(`/connectors/${connector._id}/participants/${participant3._id}`)
         .send()
         .end((err, res) => {
           chai.should(err).not.exist
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant3._id.toString())
-          chai.expect(res.body.results.isBot).to.equal(participant3.isBot)
+          chai.expect(res.body.results.isConnector).to.equal(participant3.isConnector)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
@@ -446,14 +446,14 @@ describe('Participant controller', () => {
 
       it('should be a 200', done => {
         chai.request('http://localhost:8080')
-        .get(`/bots/${bot._id}/participants/${participant4._id}`)
+        .get(`/connectors/${connector._id}/participants/${participant4._id}`)
         .send()
         .end((err, res) => {
           chai.should(err).not.exist
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant4._id.toString())
-          chai.expect(res.body.results.isBot).to.equal(participant4.isBot)
+          chai.expect(res.body.results.isConnector).to.equal(participant4.isConnector)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })

@@ -3,7 +3,7 @@ import chaiHttp from 'chai-http'
 import config from '../../config'
 
 import model from '../../src/models'
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Channel from '../../src/models/Channel.model'
 import Conversation from '../../src/models/Conversation.model'
 
@@ -26,25 +26,25 @@ const conversationPayload = {
 }
 
 describe('Conversation controller', () => {
-  let bot = {}
+  let connector = {}
   let channel = {}
   let conversation = {}
   before(async () => {
-    bot = await new Bot({ url }).save()
-    channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
-    conversation = await new Conversation({ bot: bot._id, channel: channel._id, ...conversationPayload }).save()
-    bot.conversations.push(conversation._id)
-    await bot.save()
+    connector = await new Connector({ url }).save()
+    channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
+    conversation = await new Conversation({ connector: connector._id, channel: channel._id, ...conversationPayload }).save()
+    connector.conversations.push(conversation._id)
+    await connector.save()
   })
   after(async () => await Promise.all([
-    Bot.remove({}),
+    Connector.remove({}),
     Channel.remove({}),
     Conversation.remove({}),
   ]))
 
-  describe('GET: get a bot conversations', () => {
+  describe('GET: get a connector conversations', () => {
     it('should be a 200 with conversations', async () => {
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}/conversations`).send()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -53,8 +53,8 @@ describe('Conversation controller', () => {
     })
 
     it('should be a 200 with no conversations', async () => {
-      const bot = await new Bot({ url }).save()
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}/conversations`).send()
+      const connector = await new Connector({ url }).save()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -62,25 +62,25 @@ describe('Conversation controller', () => {
       assert.equal(message, 'No conversations')
     })
 
-    it('should be a 404 with no bot', async () => {
+    it('should be a 404 with no connector', async () => {
       try {
-        const bot = await new Bot({ url }).save()
-        await Bot.remove({ _id: bot._id })
-        const res = await chai.request(baseUrl).get(`/bots/${bot._id}/conversations`).send()
+        const connector = await new Connector({ url }).save()
+        await Connector.remove({ _id: connector._id })
+        const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations`).send()
       } catch (err) {
         const res = err.response
         const { message, results } = res.body
 
         assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Bot not found')
+        assert.equal(message, 'Connector not found')
       }
     })
   })
 
   describe('GET: get a conversation', () => {
     it('should be a 200 with a conversation', async () => {
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}/conversations/${conversation._id}`).send()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -88,26 +88,26 @@ describe('Conversation controller', () => {
       assert.equal(message, 'Conversation successfully rendered')
     })
 
-    it('should be a 404 with no bot', async () => {
+    it('should be a 404 with no connector', async () => {
       try {
-        const bot = await new Bot({ url }).save()
-        await Bot.remove({ _id: bot._id })
-        const res = await chai.request(baseUrl).get(`/bots/${bot._id}/conversations/${conversation._id}`).send()
+        const connector = await new Connector({ url }).save()
+        await Connector.remove({ _id: connector._id })
+        const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
       } catch (err) {
         const res = err.response
         const { message, results } = res.body
 
         assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Bot not found')
+        assert.equal(message, 'Connector not found')
       }
     })
 
-    it('should be a 404 with no bot', async () => {
+    it('should be a 404 with no connector', async () => {
       try {
-        const conversation = await new Conversation({ bot: bot._id, channel: channel._id, ...conversationPayload }).save()
+        const conversation = await new Conversation({ connector: connectors._id, channel: channel._id, ...conversationPayload }).save()
         await Conversation.remove({ _id: conversation._id })
-        const res = await chai.request(baseUrl).get(`/bots/${bot._id}/conversations/${conversation._id}`).send()
+        const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -122,8 +122,8 @@ describe('Conversation controller', () => {
 
   describe('DELETE: delete a conversation', () => {
     it('should be a 204 with a conversation', async () => {
-      const conversation = await new Conversation({ bot: bot._id, channel: channel._id, ...conversationPayload }).save()
-      const res = await chai.request(baseUrl).delete(`/bots/${bot._id}/conversations/${conversation._id}`).send()
+      const conversation = await new Conversation({ connector: connectors._id, channel: channel._id, ...conversationPayload }).save()
+      const res = await chai.request(baseUrl).delete(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 204)
@@ -133,9 +133,9 @@ describe('Conversation controller', () => {
 
     it('should be a 404 with no conversation', async () => {
       try {
-        const conversation = await new Conversation({ bot: bot._id, channel: channel._id, ...conversationPayload }).save()
+        const conversation = await new Conversation({ connector: connector._id, channel: channel._id, ...conversationPayload }).save()
         await Conversation.remove({ _id: conversation._id })
-        const res = await chai.request(baseUrl).delete(`/bots/${bot._id}/conversations/${conversation._id}`).send()
+        const res = await chai.request(baseUrl).delete(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
         should.fail()
       } catch (err) {
         const res = err.response

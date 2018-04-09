@@ -1,11 +1,11 @@
 import chai from 'chai'
 import chaiHttp from 'chai-http'
 import mongoose from 'mongoose'
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Conversation from '../../src/models/Conversation.model'
 import Channel from '../../src/models/Channel.model'
 
-import BotsController from '../../src/controllers/Bots.controller'
+import ConnectorsController from '../../src/controllers/Connectors.controller'
 
 import sinon from 'sinon'
 
@@ -27,64 +27,64 @@ const url = 'https://bonjour.com'
 const baseUrl = 'http://localhost:8080'
 const updatedUrl = 'https://aurevoir.com'
 
-describe('Bot controller', () => {
-  describe('POST: create a bot', () => {
+describe('Connector controller', () => {
+  describe('POST: create a connector', () => {
     after(async () => clearDB())
     it ('should be a 201', async () => {
       const res = await chai.request(baseUrl)
-        .post('/bots').send({ url })
+        .post('/connectors').send({ url })
       const { message, results } = res.body
 
       assert.equal(res.status, 201)
       assert.equal(results.url, url)
-      assert.equal(message, 'Bot successfully created')
+      assert.equal(message, 'Connector successfully created')
     })
   })
 
-  describe('GET: get bots', async () => {
+  describe('GET: get connectors', async () => {
     after(async () => clearDB())
     afterEach(async () => clearDB())
 
-    it ('should be a 200 with bots', async () => {
+    it ('should be a 200 with connectors', async () => {
       await Promise.all([
-        new Bot({ url }).save(),
-        new Bot({ url }).save(),
+        new Connector({ url }).save(),
+        new Connector({ url }).save(),
       ])
-      const res = await chai.request(baseUrl).get('/bots').send()
+      const res = await chai.request(baseUrl).get('/connectors').send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
       assert.equal(results.length, 2)
-      assert.equal(message, 'Bots successfully found')
+      assert.equal(message, 'Connectors successfully found')
     })
 
-    it ('should be a 200 with no bots', async () => {
-      const res = await chai.request(baseUrl).get('/bots').send()
+    it ('should be a 200 with no connectors', async () => {
+      const res = await chai.request(baseUrl).get('/connectors').send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
       assert.equal(results.length, 0)
-      assert.equal(message, 'No Bots')
+      assert.equal(message, 'No Connectors')
     })
   })
 
-  describe('GET: get bot by id', () => {
+  describe('GET: get connector by id', () => {
     after(async () => clearDB())
 
-    it ('should be a 200 with bots', async () => {
-      const bot = await new Bot({ url }).save()
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}`).send()
+    it ('should be a 200 with connectors', async () => {
+      const connector = await new Connector({ url }).save()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
-      assert.equal(results.id, bot._id)
-      assert.equal(results.url, bot.url)
-      assert.equal(message, 'Bot successfully found')
+      assert.equal(results.id, connector._id)
+      assert.equal(results.url, connector.url)
+      assert.equal(message, 'Connector successfully found')
     })
 
-    it ('should be a 404 with no bots', async () => {
+    it ('should be a 404 with no connectors', async () => {
       try {
-        await chai.request(baseUrl).get('/bots/582a4ced73b15653c074606b').send()
+        await chai.request(baseUrl).get('/connectors/582a4ced73b15653c074606b').send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -92,29 +92,29 @@ describe('Bot controller', () => {
 
         assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Bot not found')
+        assert.equal(message, 'Connector not found')
       }
     })
   })
 
-  describe('PUT: update a bot', () => {
-    let bot = {}
-    before(async () => bot = await new Bot({ url }).save())
+  describe('PUT: update a connector', () => {
+    let connector = {}
+    before(async () => connector = await new Connectors({ url }).save())
     after(async () => clearDB())
 
     it ('should be a 200', async () => {
-      const res = await chai.request(baseUrl).put(`/bots/${bot._id}`)
+      const res = await chai.request(baseUrl).put(`/connectors/${connector._id}`)
         .send({ url: updatedUrl })
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
       assert.equal(results.url, updatedUrl)
-      assert.equal(message, 'Bot successfully updated')
+      assert.equal(message, 'Connector successfully updated')
     })
 
-    it ('should be a 404 with no bots', async () => {
+    it ('should be a 404 with no connectors', async () => {
       try {
-        await chai.request(baseUrl).put('/bots/582a4ced73b15653c074606b').send({ url })
+        await chai.request(baseUrl).put('/connectors/582a4ced73b15653c074606b').send({ url })
         should.fail()
       } catch (err) {
         const res = err.response
@@ -122,25 +122,25 @@ describe('Bot controller', () => {
 
         assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Bot not found')
+        assert.equal(message, 'Connector not found')
       }
     })
   })
 
-  describe('DELETE: delete a bot', () => {
+  describe('DELETE: delete a connector', () => {
     it ('should be a 200', async () => {
-      let bot = await new Bot({ url }).save()
-      const res = await chai.request(baseUrl).del(`/bots/${bot._id}`).send()
+      const connector = await new Connector({ url }).save()
+      const res = await chai.request(baseUrl).del(`/connectors/${connector._id}`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
       assert.equal(results, null)
-      assert.equal(message, 'Bot successfully deleted')
+      assert.equal(message, 'Connector successfully deleted')
     })
 
-    it ('should be a 404 with no bots', async () => {
+    it ('should be a 404 with no connectors', async () => {
       try {
-        await chai.request(baseUrl).del('/bots/582a4ced73b15653c074606b').send({ url })
+        await chai.request(baseUrl).del('/connectors/582a4ced73b15653c074606b').send({ url })
         should.fail()
       } catch (err) {
         const res = err.response
@@ -148,7 +148,7 @@ describe('Bot controller', () => {
 
         assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Bot not found')
+        assert.equal(message, 'Connector not found')
       }
     })
   })

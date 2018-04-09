@@ -2,7 +2,7 @@ import chai from 'chai'
 import chaiHttp from 'chai-http'
 import mongoose from 'mongoose'
 
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 
 const assert = require('chai').assert
 const expect = chai.expect
@@ -12,11 +12,11 @@ chai.use(chaiHttp)
 
 const baseUrl = 'http://localhost:8080'
 
-describe('Bot validator', () => {
-  describe('createBot', () => {
+describe('Connector validator', () => {
+  describe('createConnector', () => {
     it('should be a 400 with an invalid url', async () => {
       try {
-        await chai.request(baseUrl).post('/bots').send()
+        await chai.request(baseUrl).post('/connectors').send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -27,10 +27,10 @@ describe('Bot validator', () => {
     })
   })
 
-  describe('getBotById', () => {
-    it('should be a 400 with an invalid bot_id', async () => {
+  describe('getConnectorById', () => {
+    it('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).get('/bots/12345').send()
+        await chai.request(baseUrl).get('/connectors/12345').send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -38,18 +38,18 @@ describe('Bot validator', () => {
 
         assert.equal(res.status, 400)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter bot_id is invalid')
+        assert.equal(message, 'Parameter connector_id is invalid')
       }
     })
   })
 
-  describe('updateBotById', () => {
-    let bot = {}
-    before(async () => bot = await new Bot({ url: 'https://test.com' }))
+  describe('updateConnectorById', () => {
+    let connector = {}
+    before(async () => connector = await new Connector({ url: 'https://test.com' }))
 
-    it('should be a 400 with an invalid bot_id', async () => {
+    it('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).put('/bots/12345').send()
+        await chai.request(baseUrl).put('/connectors/12345').send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -57,13 +57,13 @@ describe('Bot validator', () => {
 
         assert.equal(res.status, 400)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter bot_id is invalid')
+        assert.equal(message, 'Parameter connector_id is invalid')
       }
     })
 
     it('should be a 400 with an invalid url', async () => {
       try {
-        const res = await chai.request(baseUrl).put(`/bots/${bot._id}`).send({ url: 'invalid' })
+        const res = await chai.request(baseUrl).put(`/connectors/${connector._id}`).send({ url: 'invalid' })
         should.fail()
       } catch (err) {
         const res = err.response
@@ -76,10 +76,10 @@ describe('Bot validator', () => {
     })
   })
 
-  describe('deleteBotById', () => {
-    it('should be a 400 with an invalid bot_id', async () => {
+  describe('deleteConnectorById', () => {
+    it('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).del('/bots/12345').send()
+        await chai.request(baseUrl).del('/connectors/12345').send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -87,7 +87,7 @@ describe('Bot validator', () => {
 
         assert.equal(res.status, 400)
         assert.equal(results, null)
-        assert.equal(message, 'Parameter bot_id is invalid')
+        assert.equal(message, 'Parameter connector_id is invalid')
       }
     })
   })

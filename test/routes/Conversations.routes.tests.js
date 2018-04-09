@@ -7,23 +7,22 @@ const chaiHttp = require('chai-http')
 const expect = chai.expect
 chai.use(chaiHttp)
 
-const Bot = require('../../src/models/Bot.model.js')
+const Connector = require('../../src/models/Connector.model.js')
 
 describe('Conversation Routes', () => {
 
-  it('Should call function getConversationsByBotId: GET /bots/:bot_id/conversations', (done) => {
-    chai.expect(fetchMethod('GET', '/bots/:bot_id/conversations')).to.equal(ConversationController.getConversationsByBotId)
+  it('Should call function getConversationsByConnectorId: GET /connectors/:connector_id/conversations', (done) => {
+    chai.expect(fetchMethod('GET', '/connectors/:connector_id/conversations')).to.equal(ConversationController.getConversationsByConnectorId)
     done()
   })
 
-  it('Should call function getConversationByBotId: GET /bots/:bot_id/conversations/conversation_id', (done) => {
-    //chai.expect(fetchMethod('GET', '/bots/:bot_id/conversations/conversation_id')).to.equal(ConversationController.getConversationByBotId)
-    chai.expect(fetchMethod('GET', '/bots/:bot_id/conversations/:conversation_id')).to.equal(ConversationController.getConversationByBotId)
+  it('Should call function getConversationByConnectorId: GET /connectors/:connector_id/conversations/conversation_id', (done) => {
+    chai.expect(fetchMethod('GET', '/connectors/:connector_id/conversations/:conversation_id')).to.equal(ConversationController.getConversationByConnectorId)
     done()
   })
 
-  it('Should call function deleteConversationByBotId: DELETE /bots/:bot_id/conversations/:conversation_id', (done) => {
-    chai.expect(fetchMethod('DELETE', '/bots/:bot_id/conversations/:conversation_id')).to.equal(ConversationController.deleteConversationByBotId)
+  it('Should call function deleteConversationByConnectorId: DELETE /connectors/:connector_id/conversations/:conversation_id', (done) => {
+    chai.expect(fetchMethod('DELETE', '/connectors/:connector_id/conversations/:conversation_id')).to.equal(ConversationController.deleteConversationByConnectorId)
     done()
   })
 })

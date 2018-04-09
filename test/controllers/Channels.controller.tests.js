@@ -3,7 +3,7 @@ import chaiHttp from 'chai-http'
 import sinon from 'sinon'
 
 import model from '../../src/models'
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Channel from '../../src/models/Channel.model'
 import KikService from '../../src/services/Kik.service'
 
@@ -25,15 +25,15 @@ const channelPayload = {
 }
 
 describe('Channel controller', () => {
-  let bot = {}
-  before(async () => bot = await Bot({ url }).save())
-  after(async () => await Bot.remove({}))
+  let connector = {}
+  before(async () => connector = await Connector({ url }).save())
+  after(async () => await Connector.remove({}))
 
   describe('POST: create a channel', () => {
     afterEach(async () => Promise.all([Channel.remove({})]))
 
     it ('should be a 201', async () => {
-      const res = await chai.request(baseUrl).post(`/bots/${bot._id}/channels`)
+      const res = await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`)
         .send(channelPayload)
       const { message, results } = res.body
 
@@ -45,11 +45,11 @@ describe('Channel controller', () => {
     assert.equal(message, 'Channel successfully created')
   })
 
-  it ('should be a 404 with no bots', async () => {
+  it ('should be a 404 with no connectors', async () => {
     try {
-      const newBot = await new Bot({ url }).save()
-      await Bot.remove({ _id: newBot._id })
-      const res = await chai.request(baseUrl).post(`/bots/${newBot._id}/channels`)
+      const newConnector = await new Connector({ url }).save()
+      await Connector.remove({ _id: newConnector._id })
+      const res = await chai.request(baseUrl).post(`/connectors/${newConnector._id}/channels`)
         .send(channelPayload)
       should.fail()
     } catch (err) {
@@ -58,15 +58,15 @@ describe('Channel controller', () => {
 
       assert.equal(res.status, 404)
       assert.equal(results, null)
-      assert.equal(message, 'Bot not found')
+      assert.equal(message, 'Connector not found')
     }
   })
 
   it ('should be a 409 with a slug already existing', async () => {
     const payload = { type: 'slack', isActivated: true, slug: 'test', token: 'test-token' }
-    const channel = await new Channel({ ...payload, bot: bot._id }).save()
+    const channel = await new Channel({ ...payload, connector: connector._id }).save()
     try {
-      await chai.request(baseUrl).post(`/bots/${bot._id}/channels`).send(payload)
+      await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
       should.fail()
     } catch (err) {
       const res = err.response
@@ -77,15 +77,15 @@ describe('Channel controller', () => {
   })
 })
 
-  describe('GET: get a bot\'s channels', () => {
+  describe('GET: get a boconnectort\'s channels', () => {
    afterEach(async () => Channel.remove({}))
 
     it ('should be a 200 with channels', async () => {
       await Promise.all([
-        new Channel({ bot: bot._id, ...channelPayload }).save(),
-        new Channel({ bot: bot._id, ...channelPayload }).save(),
+        new Channel({ connector: connector._id, ...channelPayload }).save(),
+        new Channel({ connector: connector._id, ...channelPayload }).save(),
       ])
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}/channels`).send()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/channels`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -94,7 +94,7 @@ describe('Channel controller', () => {
     })
 
     it ('should be a 200 with no channels', async () => {
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}/channels`).send()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/channels`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -103,12 +103,12 @@ describe('Channel controller', () => {
     })
   })
 
-  describe('GET: get a bot\'s channel', () => {
+  describe('GET: get a connector\'s channel', () => {
     afterEach(async () => Channel.remove({}))
 
     it('should be a 200 with a channel', async () => {
-      const channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
-      const res = await chai.request(baseUrl).get(`/bots/${bot._id}/channels/${channel.slug}`).send()
+      const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
+      const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/channels/${channel.slug}`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -119,9 +119,9 @@ describe('Channel controller', () => {
 
     it('should be a 404 with no channels', async () => {
       try {
-        const channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
+        const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
         await Channel.remove({})
-        const res = await chai.request(baseUrl).get(`/bots/${bot._id}/channels/${channel.slug}`).send()
+        const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/channels/${channel.slug}`).send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -138,8 +138,8 @@ describe('Channel controller', () => {
     afterEach(async () => Channel.remove({}))
 
     it('should be a 200 with a channel', async () => {
-      const channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
-      const res = await chai.request(baseUrl).put(`/bots/${bot._id}/channels/${channel.slug}`).send({ slug: 'updatedSlug' })
+      const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
+      const res = await chai.request(baseUrl).put(`/connectors/${connector._id}/channels/${channel.slug}`).send({ slug: 'updatedSlug' })
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -149,9 +149,9 @@ describe('Channel controller', () => {
 
     it('should be a 404 with no channels', async () => {
       try {
-        const channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
+        const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
         await Channel.remove({})
-        const res = await chai.request(baseUrl).put(`/bots/${bot._id}/channels/${channel.slug}`).send()
+        const res = await chai.request(baseUrl).put(`/connectors/${connector._id}/channels/${channel.slug}`).send()
         should.fail()
       } catch (err) {
         const res = err.response
@@ -166,10 +166,10 @@ describe('Channel controller', () => {
 
   describe('DELETE: delete a channel', () => {
     it('should be a 200 with a channel', async () => {
-      const channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
-      bot.channels.push(channel._id)
-      await bot.save()
-      const res = await chai.request(baseUrl).del(`/bots/${bot._id}/channels/${channel.slug}`).send({ slug: 'updatedSlug' })
+      const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
+      connector.channels.push(channel._id)
+      await connector.save()
+      const res = await chai.request(baseUrl).del(`/connectors/${connector._id}/channels/${channel.slug}`).send({ slug: 'updatedSlug' })
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
@@ -179,9 +179,9 @@ describe('Channel controller', () => {
 
     it('should be a 404 with no channels', async () => {
       try {
-        const channel = await new Channel({ bot: bot._id, ...channelPayload }).save()
+        const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
         await Channel.remove({})
-        const res = await chai.request(baseUrl).del(`/bots/${bot._id}/channels/${channel.slug}`).send()
+        const res = await chai.request(baseUrl).del(`/connectors/${connector._id}/channels/${channel.slug}`).send()
         should.fail()
       } catch (err) {
         const res = err.response

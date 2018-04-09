@@ -4,24 +4,24 @@ import config from '../../config/test'
 import channelController from '../../src/controllers/Channels.controller'
 
 describe("Routes", () => {
-  it("POST /bots/:bot_id/channels", done => {
-    chai.expect(fetchMethod('POST', '/bots/:bot_id/channels')).to.equal(channelController.createChannelByBotId)
+  it("POST /connectors/:connector_id/channels", done => {
+    chai.expect(fetchMethod('POST', '/connectors/:connector_id/channels')).to.equal(channelController.createChannelByConnectorId)
     done()
   })
-  it("GET /bots/:bot_id/channels", done => {
-    chai.expect(fetchMethod('GET', '/bots/:bot_id/channels')).to.equal(channelController.getChannelsByBotId)
+  it("GET /connectors/:connector_id/channels", done => {
+    chai.expect(fetchMethod('GET', '/connectors/:connector_id/channels')).to.equal(channelController.getChannelsByConnectorId)
     done()
   })
-  it("GET /bots/:bot_id/channels/:channel_slug", done => {
-    chai.expect(fetchMethod('GET', '/bots/:bot_id/channels/:channel_slug')).to.equal(channelController.getChannelByBotId)
+  it("GET /connectors/:connector_id/channels/:channel_slug", done => {
+    chai.expect(fetchMethod('GET', '/connectors/:connector_id/channels/:channel_slug')).to.equal(channelController.getChannelByConnectorId)
     done()
   })
-  it("PUT /bots/:bot_id/channels/:channel_slug", done => {
-    chai.expect(fetchMethod('PUT', '/bots/:bot_id/channels/:channel_slug')).to.equal(channelController.updateChannelByBotId)
+  it("PUT /connectors/:connector_id/channels/:channel_slug", done => {
+    chai.expect(fetchMethod('PUT', '/connectors/:connector_id/channels/:channel_slug')).to.equal(channelController.updateChannelByConnectorId)
     done()
   })
-  it("DELETE /bots/:bot_id/channels/:channel_slug", done => {
-    chai.expect(fetchMethod('DELETE', '/bots/:bot_id/channels/:channel_slug')).to.equal(channelController.deleteChannelByBotId)
+  it("DELETE /connectors/:connector_id/channels/:channel_slug", done => {
+    chai.expect(fetchMethod('DELETE', '/connectors/:connector_id/channels/:channel_slug')).to.equal(channelController.deleteChannelByConnectorId)
     done()
   })
 })

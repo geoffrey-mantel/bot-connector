@@ -3,7 +3,7 @@ import sinon from 'sinon'
 import { RtmClient } from '@slack/client'
 import request from 'superagent'
 
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Channel from '../../src/models/Channel.model'
 import Conversation from '../../src/models/Conversation.model'
 import SlackService from '../../src/services/Slack.service'
@@ -11,18 +11,18 @@ import Logger from '../../src/utils/Logger'
 
 const expect = chai.expect
 
-let bot
+let connector
 let activeChannel
 let inactiveChannel
 
 const url = 'http://localhost:8080'
-const getChannelInfo = (slug, isActivated, bot) => {
+const getChannelInfo = (slug, isActivated, connector) => {
   return {
     type: 'slack',
     token: 'slack-token',
     isActivated,
     slug,
-    bot: bot._id,
+    connector: connector._id,
   }
 }
 
@@ -108,21 +108,21 @@ const invalidConnectorMessage = {
 
 describe('Slack service', () => {
   before(async () => {
-    bot = await new Bot({ url, }).save()
-    await new Channel(getChannelInfo('slack-1', true, bot)).save()
-    activeChannel = await new Channel(getChannelInfo('slack-2', true, bot)).save()
-    inactiveChannel = await new Channel(getChannelInfo('slack-3', false, bot)).save()
-    await new Channel({ type: 'kik', isActivated: true, slug: 'kik-1', token: 'token-kik', bot: bot._id }).save()
+    connector = await new Connector({ url, }).save()
+    await new Channel(getChannelInfo('slack-1', true, connector)).save()
+    activeChannel = await new Channel(getChannelInfo('slack-2', true, connector)).save()
+    inactiveChannel = await new Channel(getChannelInfo('slack-3', false, connector)).save()
+    await new Channel({ type: 'kik', isActivated: true, slug: 'kik-1', token: 'token-kik', connector: connector._id }).save()
   })
 
   after(async () => {
-    await Bot.remove({})
+    await Connector.remove({})
     await Channel.remove({})
   })
 
   describe('checkParamsValidity', async () => {
     it('should throw if not token is set', async () => {
-      const channel = await new Channel({ type: 'slack', slug: 'slug', isActivated: true , bot}).save()
+      const channel = await new Channel({ type: 'slack', slug: 'slug', isActivated: true, connector}).save()
       let err = null
 
       try {
@@ -348,7 +348,7 @@ describe('Slack service', () => {
       it('should make request to slack', async () => {
         const formattedMessage = SlackService.formatMessage({}, connectorCardMessage)
         const channel = activeChannel
-        const convers = await new Conversation({ chatId: 'chatId', channel: channel._id, bot: bot }).save()
+        const convers = await new Conversation({ chatId: 'chatId', channel: channel._id, connector: connector }).save()
         convers.channel = channel
         await convers.save()
 
@@ -371,7 +371,7 @@ describe('Slack service', () => {
       it('should log and throw on error', async () => {
         const formattedMessage = SlackService.formatMessage({}, connectorCardMessage)
         const channel = activeChannel
-        const convers = await new Conversation({ chatId: 'chatId', channel: channel._id, bot: bot }).save()
+        const convers = await new Conversation({ chatId: 'chatId', channel: channel._id, connector: connector }).save()
         convers.channel = channel
         await convers.save()
 

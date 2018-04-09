@@ -2,7 +2,7 @@ import chai from 'chai'
 import chaiHttp from 'chai-http'
 import mongoose from 'mongoose'
 
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Conversation from '../../src/models/Conversation.model'
 import Channel from '../../src/models/Channel.model'
 
@@ -32,10 +32,10 @@ describe('Messages controller', () => {
   describe('postMessages', () => {
     after(async () => clearDB())
 
-    it('should send messages to all bots conversation', async () => {
-      let bot = await new Bot({ url: 'url' }).save()
+    it('should send messages to all connectors conversation', async () => {
+      let connector = await new Connector({ url: 'url' }).save()
       const channel1 = await new Channel({
-        bot: bot,
+        connector: connector,
         slug: 'channel-1',
         type: 'slack',
         token: 'abcd',
@@ -43,7 +43,7 @@ describe('Messages controller', () => {
       }).save()
       const convers1 = await new Conversation({
         channel: channel1,
-        bot: bot,
+        connector: connector,
         isActive: true,
         chatId: '123',
       }).save()
@@ -51,7 +51,7 @@ describe('Messages controller', () => {
       await channel1.save()
 
       const channel2 = await new Channel({
-        bot: bot,
+        connector: connector,
         slug: 'channel-2',
         type: 'slack',
         token: 'abcd',
@@ -59,20 +59,20 @@ describe('Messages controller', () => {
       }).save()
       const convers2 = await new Conversation({
         channel: channel2,
-        bot: bot,
+        connector: connector,
         isActive: true,
         chatId: '1234',
       }).save()
       channel2.conversations = [convers2._id]
       await channel2.save()
 
-      bot.channels = [channel1, channel2]
-      bot.conversations = [convers1, convers2]
-      await bot.save()
+      connector.channels = [channel1, channel2]
+      connector.conversations = [convers1, convers2]
+      await connector.save()
 
       // With valid json parameter
       let stub = sinon.stub(MessagesController, 'postToConversation', () => { true })
-      let res = await chai.request(baseUrl).post(`/bots/${bot._id.toString()}/messages`).send({
+      let res = await chai.request(baseUrl).post(`/connectors/${connector._id.toString()}/messages`).send({
         messages: [{
           type: 'text',
           content: 'Hello'
@@ -85,7 +85,7 @@ describe('Messages controller', () => {
 
       // With valid string parameter
       stub = sinon.stub(MessagesController, 'postToConversation', () => { true })
-      res = await chai.request(baseUrl).post(`/bots/${bot._id.toString()}/messages`).send({
+      res = await chai.request(baseUrl).post(`/connectors/${connector._id.toString()}/messages`).send({
         messages: JSON.stringify([{ type: 'text', content: 'Hello' }]),
       })
       expect(res.status).to.equal(201)
@@ -96,7 +96,7 @@ describe('Messages controller', () => {
       // With invalid string parameter
       stub = sinon.stub(MessagesController, 'postToConversation', () => { throw new Error('error') })
       try {
-        res = await chai.request(baseUrl).post(`/bots/${bot._id.toString()}/messages`).send({
+        res = await chai.request(baseUrl).post(`/connectors/${connector._id.toString()}/messages`).send({
           messages: '[,{ "type": "text",, "content": "Hello" }]]'
         })
         should.fail()
@@ -114,7 +114,7 @@ describe('Messages controller', () => {
       // With error in postToConversation
       stub = sinon.stub(MessagesController, 'postToConversation', () => { throw new Error('error') })
       try {
-        res = await chai.request(baseUrl).post(`/bots/${bot._id.toString()}/messages`).send({
+        res = await chai.request(baseUrl).post(`/connectors/${connector._id.toString()}/messages`).send({
           messages: [{
             type: 'text',
             content: 'Hello'

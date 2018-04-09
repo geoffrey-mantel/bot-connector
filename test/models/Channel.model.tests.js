@@ -1,7 +1,7 @@
 import chai from 'chai'
 import chaiHttp from 'chai-http'
 
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Channel from '../../src/models/Channel.model'
 
 const assert = require('chai').assert
@@ -17,14 +17,14 @@ const fakeChannel = {
 }
 
 describe('Channel Model', () => {
-  let bot = {}
-  before(async () => bot = await new Bot({ url: 'https://bonjour.com' }))
+  let connector = {}
+  before(async () => connector = await new Connector({ url: 'https://bonjour.com' }))
 
   describe('Create Channel', () => {
     after(async () => Channel.remove({}))
 
     it('can create a new Channel', async () => {
-      const channel = await new Channel({ bot: bot._id, ...fakeChannel }).save()
+      const channel = await new Channel({ connector: connector._id, ...fakeChannel }).save()
       assert.equal(channel.type, fakeChannel.type)
       assert.equal(channel.isActivated, fakeChannel.isActivated)
       assert.equal(channel.slug, fakeChannel.slug)
@@ -41,7 +41,7 @@ describe('Channel Model', () => {
     })
 
     it('can list 1 channel', async () => {
-      await new Channel({ bot: bot._id, ...fakeChannel }).save()
+      await new Channel({ connector: connector._id, ...fakeChannel }).save()
       const channels = await Channel.find({}).exec()
 
       expect(channels).to.have.length(1)
@@ -52,7 +52,7 @@ describe('Channel Model', () => {
     after(async () => Channel.remove({}))
 
     it('can update 1 channel', async () => {
-      const channel = await new Channel({ bot: bot._id, ...fakeChannel }).save()
+      const channel = await new Channel({ connector: connector._id, ...fakeChannel }).save()
       const updatedChannel = await Channel.findOneAndUpdate({ _id: channel._id }, { $set: { isActivated: false } }, { new: true }).exec()
 
       assert.equal(updatedChannel.isActivated, false)
@@ -64,8 +64,8 @@ describe('Channel Model', () => {
 
     it('can remove channel #2', async () => {
       const [channel1] = await Promise.all([
-        new Channel({ bot: bot._id, ...fakeChannel }).save(),
-        new Channel({ bot: bot._id, ...fakeChannel }).save(),
+        new Channel({ connector: connector._id, ...fakeChannel }).save(),
+        new Channel({ connector: connector._id, ...fakeChannel }).save(),
       ])
 
       const deletedChannel = await channel1.remove()

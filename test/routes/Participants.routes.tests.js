@@ -4,13 +4,13 @@ import fetchMethod from '../services/fetchMethod.service'
 import ParticipantsController from '../../src/controllers/Participants.controller'
 
 describe("Routes", () => {
-  it("GET /bots/:bot_id/participants", done => {
-    chai.expect(fetchMethod('GET', '/bots/:bot_id/participants')).to.equal(ParticipantsController.getParticipantsByBotId)
+  it("GET /connectors/:connector_id/participants", done => {
+    chai.expect(fetchMethod('GET', '/connectors/:connector_id/participants')).to.equal(ParticipantsController.getParticipantsByConnectorId)
     done()
   })
 
-  it("GET /bots/:bot_id/participants/:participant_id", done => {
-    chai.expect(fetchMethod('GET', '/bots/:bot_id/participants/:participant_id')).to.equal(ParticipantsController.getParticipantByBotId)
+  it("GET /connectors/:connector_id/participants/:participant_id", done => {
+    chai.expect(fetchMethod('GET', '/connectors/:connector_id/participants/:participant_id')).to.equal(ParticipantsController.getParticipantByConnectorId)
     done()
   })
 })

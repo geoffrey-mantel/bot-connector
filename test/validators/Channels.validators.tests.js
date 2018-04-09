@@ -2,7 +2,7 @@ import chai from 'chai'
 import chaiHttp from 'chai-http'
 import mongoose from 'mongoose'
 
-import Bot from '../../src/models/Bot.model'
+import Connector from '../../src/models/Connector.model'
 import Channel from '../../src/models/Channel.model'
 
 const assert = require('chai').assert
@@ -20,27 +20,27 @@ const payload = {
 }
 
 describe('Channel validator', () => {
-  describe('createChannelByBotId', () => {
-    let bot = {}
-    before(async () => bot = await new Bot({ url }))
-    after(async () => await Bot.remove({}))
+  describe('createChannelByConnectorId', () => {
+    let connector = {}
+    before(async () => connector = await new Connector({ url }))
+    after(async () => await Connector.remove({}))
 
-    it ('should be a 400 with an invalid bot_id', async () => {
+    it ('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).post('/bots/1234/channels').send()
+        await chai.request(baseUrl).post('/connectors/1234/channels').send()
         should.fail()
       } catch (err) {
         const res = err.response
 
         assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter bot_id is invalid')
+        assert.equal(res.body.message, 'Parameter connector_id is invalid')
       }
     })
 
     it('should be a 400 with a missing type', async () => {
       const payload = { isActivated: true, slug: 'slug-test' }
       try {
-        await chai.request(baseUrl).post(`/bots/${bot._id}/channels`).send(payload)
+        await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
         should.fail()
       } catch (err) {
         const res = err.response
@@ -53,7 +53,7 @@ describe('Channel validator', () => {
     it ('should be a 400 with an invalid type', async () => {
       const payload = { type: 'invalid', isActivated: true, slug: 'slug-test' }
       try {
-        await chai.request(baseUrl).post(`/bots/${bot._id}/channels`).send(payload)
+        await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
         should.fail()
       } catch (err) {
         const res = err.response
@@ -66,7 +66,7 @@ describe('Channel validator', () => {
     it ('should be a 400 with a missing isActivated', async () => {
       const payload = { type: 'slack', slug: 'slug-test' }
       try {
-        await chai.request(baseUrl).post(`/bots/${bot._id}/channels`).send(payload)
+        await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
         should.fail()
       } catch (err) {
         const res = err.response
@@ -79,7 +79,7 @@ describe('Channel validator', () => {
     it ('should be a 400 with a missing slug', async () => {
       const payload = { type: 'slack', isActivated: true }
       try {
-        await chai.request(baseUrl).post(`/bots/${bot._id}/channels`).send(payload)
+        await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
         should.fail()
       } catch (err) {
         const res = err.response
@@ -91,63 +91,63 @@ describe('Channel validator', () => {
 
   })
 
-  describe('getChannelsByBotId', () => {
-    it ('should be a 400 with an invalid bot_id', async () => {
+  describe('getChannelsByConnectorId', () => {
+    it ('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).get('/bots/1234/channels').send()
+        await chai.request(baseUrl).get('/connectors/1234/channels').send()
         should.fail()
       } catch (err) {
         const res = err.response
 
         assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter bot_id is invalid')
+        assert.equal(res.body.message, 'Parameter connector_id is invalid')
       }
     })
   })
 
-  describe('getChannelByBotId', () => {
-    let bot = {}
-    before(async () => bot = await new Bot({ url }).save())
-    after(async () => Bot.remove({}))
+  describe('getChannelByConnectorId', () => {
+    let connector = {}
+    before(async () => connector = await new Connector({ url }).save())
+    after(async () => Connector.remove({}))
 
-    it ('should be a 400 with an invalid bot_id', async () => {
+    it ('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).get('/bots/1234/channels/1234').send()
+        await chai.request(baseUrl).get('/connectors/1234/channels/1234').send()
         should.fail()
       } catch (err) {
         const res = err.response
 
         assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter bot_id is invalid')
+        assert.equal(res.body.message, 'Parameter connector_id is invalid')
       }
     })
   })
 
-  describe('updateChannelByBotId', () => {
-    let bot = {}
+  describe('updateChannelByConnectorId', () => {
+    let connector = {}
     let channel = {}
     before(async () => {
-      bot = await new Bot({ url }).save()
-      channel = await new Channel({ ...payload, bot: bot._id }).save()
+      connector = await new Connector({ url }).save()
+      channel = await new Channel({ ...payload, connector: connector._id }).save()
     })
-    after(async () => Promise.all([Bot.remove({}), Channel.remove({})]))
+    after(async () => Promise.all([Connecotr.remove({}), Channel.remove({})]))
 
-    it ('should be a 400 with an invalid bot_id', async () => {
+    it ('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).put(`/bots/1234/channels/${channel._slug}`).send()
+        await chai.request(baseUrl).put(`/connectors/1234/channels/${channel._slug}`).send()
         should.fail()
       } catch (err) {
         const res = err.response
 
         assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter bot_id is invalid')
+        assert.equal(res.body.message, 'Parameter connector_id is invalid')
       }
     })
 
-    it ('should be a 409 with an invalid bot_id', async () => {
+    it ('should be a 409 with an invalid connector_id', async () => {
       try {
-        await new Channel({ ...payload, slug: 'test1', bot: bot._id }).save()
-        await chai.request(baseUrl).put(`/bots/${bot._id}/channels/${channel.slug}`).send({ slug: 'test1' })
+        await new Channel({ ...payload, slug: 'test1', connector: connector._id }).save()
+        await chai.request(baseUrl).put(`/connectors/${connector._id}/channels/${channel.slug}`).send({ slug: 'test1' })
         should.fail()
       } catch (err) {
         const res = err.response
@@ -158,16 +158,16 @@ describe('Channel validator', () => {
     })
   })
 
-  describe('deleteChannelBotById', () => {
-    it ('should be a 400 with an invalid bot_id', async () => {
+  describe('deleteChannelConnectorById', () => {
+    it ('should be a 400 with an invalid connector_id', async () => {
       try {
-        await chai.request(baseUrl).del(`/bots/1234/channels/test`).send()
+        await chai.request(baseUrl).del(`/connectors/1234/channels/test`).send()
         should.fail()
       } catch (err) {
         const res = err.response
 
         assert.equal(res.status, 400)
-        assert.equal(res.body.message, 'Parameter bot_id is invalid')
+        assert.equal(res.body.message, 'Parameter connector_id is invalid')
       }
     })
   })
