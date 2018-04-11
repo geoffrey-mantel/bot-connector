@@ -69,15 +69,15 @@ describe('Participant controller', () => {
         done()
       })
 
-      it('should be a 400 with a not valid connector_id', done => {
+      it('should be a 404 with a not valid connector_id', done => {
         chai.request('http://localhost:8080')
         .get(`/connectors/1/participants`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
-          chai.expect(res.status).to.equal(400)
+          chai.expect(res.status).to.equal(404)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter connector_id is invalid')
+          chai.expect(res.body.message).to.equal('Connector not found')
           done()
         })
       })
@@ -181,15 +181,15 @@ describe('Participant controller', () => {
         done()
       })
 
-      it('should be a 400 with a not valid connector_id', done => {
+      it('should be a 404 with a not valid connector_id', done => {
         chai.request('http://localhost:8080')
         .get(`/connectors/1/participants`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
-          chai.expect(res.status).to.equal(400)
+          chai.expect(res.status).to.equal(404)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter connector_id is invalid')
+          chai.expect(res.body.message).to.equal('Connector not found')
           done()
         })
       })
@@ -262,28 +262,28 @@ describe('Participant controller', () => {
         done()
       })
 
-      it('should be a 400 with a not valid connector_id', done => {
+      it('should be a 404 with a not valid connector_id', done => {
         chai.request('http://localhost:8080')
         .get(`/connectors/1/participants/1`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
-          chai.expect(res.status).to.equal(400)
+          chai.expect(res.status).to.equal(404)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter connector_id is invalid')
+          chai.expect(res.body.message).to.equal('Participant not found')
           done()
         })
       })
 
-      it('should be a 400 with a not valid participant_id', done => {
+      it('should be a 404 with a not valid participant_id', done => {
         chai.request('http://localhost:8080')
         .get(`/connectors/${connector._id}/participants/1`)
         .send()
         .end((err, res) => {
           chai.should(err).exist
-          chai.expect(res.status).to.equal(400)
+          chai.expect(res.status).to.equal(404)
           chai.expect(res.body.results).to.equal(null)
-          chai.expect(res.body.message).to.equal('Parameter participant_id is invalid')
+          chai.expect(res.body.message).to.equal('Participant not found')
           done()
         })
       })

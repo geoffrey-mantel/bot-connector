@@ -10,15 +10,19 @@ export default class ParticipantController {
     const { connector_id } = req.params
     const results = []
 
-    const conversations = await models.Conversation.find({ connector: connector_id }).populate('participants')
+    const connector = await models.Connector.findById(connector_id)
+    if (!connector) {
+      throw new NotFoundError('Connector')
+    }
 
+    const conversations = await models.Conversation.find({ connector: connector_id }).populate('participants')
     conversations.forEach(c => {
       c.participants.forEach(p => results.push(p.serialize))
     })
 
     return renderOk(res, {
       results,
-      messages: results.length ? 'Participants successfully rendered' : 'No participants',
+      message: results.length ? 'Participants successfully rendered' : 'No participants',
     })
   }
 
