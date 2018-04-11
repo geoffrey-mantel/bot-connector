@@ -22,7 +22,6 @@ describe('Conversation Model', () => {
     payload = {
       channel: channel._id,
       connector: connector._id,
-      isActive: true,
       chatId: 'testChatId',
     }
   })
@@ -44,7 +43,6 @@ describe('Conversation Model', () => {
       assert.equal(conversation.connector, payload.connector)
       assert.equal(conversation.channel, payload.channel)
       assert.equal(conversation.chatId, payload.chatId)
-      assert.equal(conversation.isActive, payload.isActive)
     })
   })
 
@@ -64,21 +62,6 @@ describe('Conversation Model', () => {
 
       const conversations = await Conversation.find({}).exec()
       expect(conversations).to.have.length(2)
-    })
-  })
-
-  describe('Update Conversation', () => {
-    after(async () => Conversation.remove({}))
-
-    it('can update a conversation', async () => {
-      const newPayload = { isActive: false }
-
-      const conversation = await new Conversation(payload).save()
-      const updatedConversation = await Conversation.findOneAndUpdate({ _id: conversation._id }, { $set: newPayload }, { new: true })
-
-      assert.equal(conversation.connector.toString(), updatedConversation.connector.toString())
-      assert.equal(conversation.chatId, updatedConversation.chatId)
-      assert.equal(updatedConversation.isActive, false)
     })
   })
 

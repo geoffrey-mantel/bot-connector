@@ -9,7 +9,7 @@ chai.use(chaiHttp)
 const assert = require('chai').assert
 
 const fakeParticipant = {
-  isConnector: false,
+  isBot: false,
   senderId: '1234',
 }
 
@@ -28,7 +28,7 @@ describe('Participant Model', () => {
     it('can create connector when no one exists', async () => {
       const participant = await new Participant(fakeParticipant).save()
 
-      assert.equal(participant.isConnector, fakeParticipant.isConnector)
+      assert.equal(participant.isBot, fakeParticipant.isBot)
       assert.equal(participant.senderId, fakeParticipant.senderId)
     })
   })
@@ -66,8 +66,8 @@ describe('Participant Model', () => {
       after(async () => clearDB())
 
       it('can update a participant', async () => {
-        const updatedParticipant = await Participant.findOneAndUpdate({ _id: participant._id }, { $set: { isConnector: true } }, { new: true })
-        assert.equal(updatedParticipant.isConnector, true)
+        const updatedParticipant = await Participant.findOneAndUpdate({ _id: participant._id }, { $set: { isBot: true } }, { new: true })
+        assert.equal(updatedParticipant.isBot, true)
       })
     })
   })

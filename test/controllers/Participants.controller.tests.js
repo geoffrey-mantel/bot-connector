@@ -62,7 +62,7 @@ describe('Participant controller', () => {
       })
 
       after(done => {
-        boconnectort = null
+        connector = null
         channel = null
         conversation1 = null
         clearDB()
@@ -131,20 +131,20 @@ describe('Participant controller', () => {
 
         connector.conversations.push(conversation2._id)
 
-        participant1.isConnector = true
+        participant1.isBot = true
 
         conversation1.participants.push(participant1._id)
 
-        participant2.isConnector = false
+        participant2.isBot = false
 
 
         conversation1.participants.push(participant2._id)
 
-        participant3.isConnector = true
+        participant3.isBot = true
 
         conversation2.participants.push(participant3._id)
 
-        participant4.isConnector = false
+        participant4.isBot = false
 
 
         conversation2.participants.push(participant4._id)
@@ -205,16 +205,16 @@ describe('Participant controller', () => {
           chai.expect(res.body.results.length).to.equal(4)
           chai.expect(res.body.results[0]).to.be.an('object')
           chai.expect(res.body.results[0].id.toString()).to.equal(participant1._id.toString())
-          chai.expect(res.body.results[0].isConnector).to.equal(participant1.isConnector)
+          chai.expect(res.body.results[0].isBot).to.equal(participant1.isBot)
           chai.expect(res.body.results[1]).to.be.an('object')
           chai.expect(res.body.results[1].id.toString()).to.equal(participant2._id.toString())
-          chai.expect(res.body.results[1].isConnector).to.equal(participant2.isConnector)
+          chai.expect(res.body.results[1].isBot).to.equal(participant2.isBot)
           chai.expect(res.body.results[2]).to.be.an('object')
           chai.expect(res.body.results[2].id.toString()).to.equal(participant3._id.toString())
-          chai.expect(res.body.results[2].isConnector).to.equal(participant3.isConnector)
+          chai.expect(res.body.results[2].isBot).to.equal(participant3.isBot)
           chai.expect(res.body.results[3]).to.be.an('object')
           chai.expect(res.body.results[3].id.toString()).to.equal(participant4._id.toString())
-          chai.expect(res.body.results[3].isConnector).to.equal(participant4.isConnector)
+          chai.expect(res.body.results[3].isBot).to.equal(participant4.isBot)
           chai.expect(res.body.message).to.equal('Participants successfully rendered')
           done()
         })
@@ -336,20 +336,20 @@ describe('Participant controller', () => {
 
         connector.conversations.push(conversation2._id)
 
-        participant1.isConnector = true
+        participant1.isBot = true
 
         conversation1.participants.push(participant1._id)
 
-        participant2.isConnector = false
+        participant2.isBot = false
 
 
         conversation1.participants.push(participant2._id)
 
-        participant3.isConnector = true
+        participant3.isBot = true
 
         conversation2.participants.push(participant3._id)
 
-        participant4.isConnector = false
+        participant4.isBot = false
 
 
         conversation2.participants.push(participant4._id)
@@ -408,7 +408,7 @@ describe('Participant controller', () => {
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant1._id.toString())
-          chai.expect(res.body.results.isConnector).to.equal(participant1.isConnector)
+          chai.expect(res.body.results.isBot).to.equal(participant1.isBot)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
@@ -423,7 +423,7 @@ describe('Participant controller', () => {
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant2._id.toString())
-          chai.expect(res.body.results.isConnector).to.equal(participant2.isConnector)
+          chai.expect(res.body.results.isBot).to.equal(participant2.isBot)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
@@ -438,7 +438,7 @@ describe('Participant controller', () => {
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant3._id.toString())
-          chai.expect(res.body.results.isConnector).to.equal(participant3.isConnector)
+          chai.expect(res.body.results.isBot).to.equal(participant3.isBot)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
@@ -453,7 +453,7 @@ describe('Participant controller', () => {
           chai.expect(res.status).to.equal(200)
           chai.expect(res.body.results).to.be.an('object')
           chai.expect(res.body.results.id.toString()).to.equal(participant4._id.toString())
-          chai.expect(res.body.results.isConnector).to.equal(participant4.isConnector)
+          chai.expect(res.body.results.isBot).to.equal(participant4.isBot)
           chai.expect(res.body.message).to.equal('Participant successfully rendered')
           done()
         })
