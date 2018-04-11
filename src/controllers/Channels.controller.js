@@ -120,7 +120,7 @@ export default class ChannelsController {
     }
 
     await Promise.all([
-      channel.delete(),
+      channel.remove(),
       invoke(channel.type, 'onChannelDelete', [channel]),
     ])
 

@@ -39,11 +39,11 @@ describe('Channel controller', () => {
 
       assert.equal(res.status, 201)
       assert.equal(results.type, channelPayload.type)
-  assert.equal(results.isActivated, channelPayload.isActivated)
-    assert.equal(results.slug, channelPayload.slug)
-    assert.equal(results.token, channelPayload.token)
-    assert.equal(message, 'Channel successfully created')
-  })
+      assert.equal(results.isActivated, channelPayload.isActivated)
+      assert.equal(results.slug, channelPayload.slug)
+      assert.equal(results.token, channelPayload.token)
+      assert.equal(message, 'Channel successfully created')
+    })
 
   it ('should be a 404 with no connectors', async () => {
     try {
@@ -65,6 +65,9 @@ describe('Channel controller', () => {
   it ('should be a 409 with a slug already existing', async () => {
     const payload = { type: 'slack', isActivated: true, slug: 'test', token: 'test-token' }
     const channel = await new Channel({ ...payload, connector: connector._id }).save()
+    connector.channels.push(channel._id)
+    await connector.save()
+
     try {
       await chai.request(baseUrl).post(`/connectors/${connector._id}/channels`).send(payload)
       should.fail()
@@ -72,19 +75,21 @@ describe('Channel controller', () => {
       const res = err.response
 
       assert.equal(res.status, 409)
-      assert.equal(res.body.message, 'Channel slug already exists')
+      assert.equal(res.body.message, 'Channel slug is already taken')
     }
   })
 })
 
-  describe('GET: get a boconnectort\'s channels', () => {
+  describe('GET: get a connector\'s channels', () => {
    afterEach(async () => Channel.remove({}))
 
     it ('should be a 200 with channels', async () => {
-      await Promise.all([
-        new Channel({ connector: connector._id, ...channelPayload }).save(),
-        new Channel({ connector: connector._id, ...channelPayload }).save(),
-      ])
+      const channel1 = await new Channel({ connector: connector._id, ...channelPayload }).save()
+      const channel2 = await new Channel({ connector: connector._id, ...channelPayload }).save()
+      connector.channels.push(channel1._id)
+      connector.channels.push(channel2._id)
+      await connector.save()
+
       const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/channels`).send()
       const { message, results } = res.body
 
@@ -169,7 +174,8 @@ describe('Channel controller', () => {
       const channel = await new Channel({ connector: connector._id, ...channelPayload }).save()
       connector.channels.push(channel._id)
       await connector.save()
-      const res = await chai.request(baseUrl).del(`/connectors/${connector._id}/channels/${channel.slug}`).send({ slug: 'updatedSlug' })
+
+      const res = await chai.request(baseUrl).del(`/connectors/${connector._id}/channels/${channel.slug}`).send()
       const { message, results } = res.body
 
       assert.equal(res.status, 200)
