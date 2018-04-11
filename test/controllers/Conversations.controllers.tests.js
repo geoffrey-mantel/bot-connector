@@ -49,7 +49,7 @@ describe('Conversation controller', () => {
 
       assert.equal(res.status, 200)
       assert.equal(results.length, 1)
-      assert.equal(message, 'Conversations successfully rendered')
+      assert.equal(message, 'Conversations successfully found')
     })
 
     it('should be a 200 with no conversations', async () => {
@@ -85,7 +85,7 @@ describe('Conversation controller', () => {
 
       assert.equal(res.status, 200)
       assert.equal(results.id, conversation._id)
-      assert.equal(message, 'Conversation successfully rendered')
+      assert.equal(message, 'Conversation successfully found')
     })
 
     it('should be a 404 with no connector', async () => {
@@ -99,13 +99,13 @@ describe('Conversation controller', () => {
 
         assert.equal(res.status, 404)
         assert.equal(results, null)
-        assert.equal(message, 'Connector not found')
+        assert.equal(message, 'Conversation not found')
       }
     })
 
-    it('should be a 404 with no connector', async () => {
+    it('should be a 404 with no conversation', async () => {
       try {
-        const conversation = await new Conversation({ connector: connectors._id, channel: channel._id, ...conversationPayload }).save()
+        const conversation = await new Conversation({ connector: connector._id, channel: channel._id, ...conversationPayload }).save()
         await Conversation.remove({ _id: conversation._id })
         const res = await chai.request(baseUrl).get(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
         should.fail()
@@ -121,14 +121,14 @@ describe('Conversation controller', () => {
   })
 
   describe('DELETE: delete a conversation', () => {
-    it('should be a 204 with a conversation', async () => {
-      const conversation = await new Conversation({ connector: connectors._id, channel: channel._id, ...conversationPayload }).save()
+    it('should be a 200 with a conversation', async () => {
+      const conversation = await new Conversation({ connector: connector._id, channel: channel._id, ...conversationPayload }).save()
       const res = await chai.request(baseUrl).delete(`/connectors/${connector._id}/conversations/${conversation._id}`).send()
       const { message, results } = res.body
 
-      assert.equal(res.status, 204)
+      assert.equal(res.status, 200)
       assert.equal(results, null)
-      assert.equal(message, null)
+      assert.equal(message, 'Conversation successfully deleted')
     })
 
     it('should be a 404 with no conversation', async () => {
