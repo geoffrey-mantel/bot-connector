@@ -2,6 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import bodyParser from 'body-parser'
+import _ from 'lodash'
 
 /* Test Framework */
 import Mocha from 'mocha'
@@ -9,27 +10,29 @@ import Mocha from 'mocha'
 import istanbul from 'istanbul'
 
 import configs from '../config'
-import { createRouter } from './routes/'
-import { initServices } from './utils/init'
+import { Logger } from './utils'
 
 import path from 'path'
 import recursive from 'recursive-readdir'
 
-import Logger from './utils/Logger'
-
-/* eslint-disable max-nested-callbacks*/
-global.Bot = require('./models/Bot.model')
-global.Channel = require('./models/Channel.model')
-global.Conversation = require('./models/Conversation.model')
-global.Message = require('./models/Message.model')
-global.Participant = require('./models/Participant.model')
+import _models from './models'
+import _controllers from './controllers'
+import _services from './services'
 
 const app = express()
 
-// Load the configuration
-const env = process.env.NODE_ENV || 'test'
+global.models = _models
+global.controllers = _controllers
+global.services = {}
 
-const config = configs[env]
+_.forOwn(_services, (service, serviceName) => {
+  services[serviceName.toLowerCase()] = service
+})
+
+const createRouter = require('./routes').createRouter
+
+// Load the configuration
+global.config = configs
 
 // Enable Cross Origin Resource Sharing
 app.use(cors())
@@ -54,7 +57,6 @@ db.on('error', err => {
 // Launch the application
 db.once('open', () => {
   createRouter(app)
-  initServices()
   global.app = app
   const port = config.server.port
   app.listen(port, () => {
